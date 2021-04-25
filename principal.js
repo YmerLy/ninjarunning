@@ -29,7 +29,7 @@ const ninja = {
             ninja.y = ninja.y - ninja.velocidade;
     },
     //O desenho terá a capacidade de desenhar ele mesmo na função abaixo
-    desenhar(){
+    desenha(){
         contexto.drawImage(
             sprites,
             //pega a localização da imagem (eixo x e y da imagem) dentro do sprite
@@ -53,7 +53,7 @@ const ceuFundo = {
     y: canvas.height - 425,
     larguraCanvas: 300,
     alturaCanvas: 320,
-    desenhar(){
+    desenha(){
         contexto.drawImage(
             sprites,
             ceuFundo.sourceX, ceuFundo.sourceY,
@@ -83,7 +83,7 @@ const chaoCidade = {
     y: canvas.height - 105,
     larguraCanvas: 348,
     alturaCanvas: 131,
-    desenhar(){
+    desenha(){
         contexto.drawImage(
             sprites,
             chaoCidade.sourceX, chaoCidade.sourceY,
@@ -106,7 +106,7 @@ const chaoCidade = {
 }
 
 //Tela de inicio
-const telaInicio = {
+const iniciarJogo = {
     sourceX: 0,
     sourceY: 335,
     largura: 279,
@@ -115,27 +115,40 @@ const telaInicio = {
     y: 0,
     larguraCanvas: 220,
     alturaCanvas: 200,
-    desenhar(){
+    desenha(){
         contexto.drawImage(
             sprites,
             //pega a localização da imagem (eixo x e y da imagem) dentro do sprite
-            telaInicio.sourceX, telaInicio.sourceY,
+            iniciarJogo.sourceX, iniciarJogo.sourceY,
             //largura e altura da imagem dentro do sprite
-            telaInicio.largura, telaInicio.altura,
+            iniciarJogo.largura, iniciarJogo.altura,
             //eixo onde a imagem será colocada dentro do CANVAS
-            telaInicio.x, telaInicio.y,
+            iniciarJogo.x, iniciarJogo.y,
             //dentro do canvas, qual será o tamanho da imagem
-            telaInicio.larguraCanvas, telaInicio.alturaCanvas,
+            iniciarJogo.larguraCanvas, iniciarJogo.alturaCanvas,
         );
     }
 }
 
 // Telas
 //agrupamento para melhor visualização
+//telaAtiva vai funcionar para trocar as telas
+//let é definido para quando o valor for sofrer alteração
+let telaAtiva ={};
+function mudancaTela(novaTela){
+    telaAtiva = novaTela;
+}
 const telas ={
-    start:{
-        desenha(){
-            telaInicio.desenha();
+    inicio:{
+        desenha(){            
+            chaoCidade.desenha();
+            ceuFundo.desenha();
+            ninja.desenha();
+            iniciarJogo.desenha();
+        },
+        //ao cliclar na tela, o usuário chama a tela do jogo.
+        click(){
+            mudancaTela(telas.jogo);
         },
         atualiza(){
 
@@ -143,11 +156,12 @@ const telas ={
 
     }
 };
-telas.Jogo = {
+// adiciona valor novo, porém método diferente, mas funciona como telas inicio:
+telas.jogo = {
     desenha(){
-        chaoCidade.desenhar();
-        ceuFundo.desenhar();
-        ninja.desenhar();
+        chaoCidade.desenha();
+        ceuFundo.desenha();
+        ninja.desenha();
         
     },
     atualiza(){
@@ -155,8 +169,18 @@ telas.Jogo = {
     }
 };
 //Função definida para que o ResquestAnimationFrame posso chamar e desenhar o objeto no canvas
-function desenharTelaPersonagemParado(){    
-
-    requestAnimationFrame(desenharTelaPersonagemParado);
+function desenharTela(){    
+    telaAtiva.desenha();
+    telaAtiva.atualiza();
+    requestAnimationFrame(desenharTela);
 }
-desenharTelaPersonagemParado();
+
+//adiciona evento para saber quando o usuário cliclou na tela e o jogo poder iniciar
+window.addEventListener('click', function(){
+    if(telaAtiva.click){
+        telaAtiva.click();
+    }
+})
+
+mudancaTela(telas.inicio);
+desenharTela();
